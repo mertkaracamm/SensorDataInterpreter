@@ -1,9 +1,0 @@
-io\sensordata\interpreter\controller\OperationalDataControllerTest.class
-io\sensordata\interpreter\service\OperationalHandlerTest.class
-io\sensordata\interpreter\service\SensorDataProcessingServiceImplTest.class
-io\sensordata\interpreter\controller\StatisticalDataControllerTest.class
-io\sensordata\interpreter\exception\GlobalExceptionHandlerTest.class
-io\sensordata\interpreter\service\StatisticalHandlerTest.class
-io\sensordata\interpreter\calculator\MetricCalculatorTest.class
-io\sensordata\interpreter\controller\MessageIngestControllerTest.class
-io\sensordata\interpreter\controller\LocationHistoryControllerTest.class
