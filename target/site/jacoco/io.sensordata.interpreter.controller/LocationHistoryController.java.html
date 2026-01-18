@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="tr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocationHistoryController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sensordata-interpreter</a> &gt; <a href="index.source.html" class="el_package">io.sensordata.interpreter.controller</a> &gt; <span class="el_source">LocationHistoryController.java</span></div><h1>LocationHistoryController.java</h1><pre class="source lang-java linenums">package io.sensordata.interpreter.controller;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.bind.annotation.*;
+
+import io.sensordata.interpreter.dto.EventLocationDTO;
+import io.sensordata.interpreter.service.LocationHistoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+
+@RestController
+@RequestMapping(&quot;/api/location-history&quot;)
+public class LocationHistoryController {
+
+    private final LocationHistoryService service;
+
+<span class="fc" id="L20">    public LocationHistoryController(LocationHistoryService service) {</span>
+<span class="fc" id="L21">        this.service = service;</span>
+<span class="fc" id="L22">    }</span>
+
+    @Operation(
+        summary = &quot;Get Location History of a Device&quot;,
+        description = &quot;Returns event locations of the given device within the provided time range.&quot;
+    )
+    @GetMapping
+    public List&lt;EventLocationDTO&gt; getLocationHistory(
+            @Parameter(description = &quot;Device ID&quot;, example = &quot;56jddfg-44543-fgdfgs-353444353&quot;)
+            @RequestParam String deviceId,
+
+            @Parameter(description = &quot;Start Time&quot;, example = &quot;2025-01-01T00:00:00&quot;)
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime startTime,
+
+            @Parameter(description = &quot;End Time&quot;, example = &quot;2050-01-01T12:00:00&quot;)
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime endTime
+    ) {
+
+<span class="fc" id="L42">        validate(deviceId, startTime, endTime);</span>
+
+<span class="fc" id="L44">        return service.getLocationHistory(deviceId, startTime, endTime);</span>
+    }
+
+    
+    private void validate(String deviceId, LocalDateTime start, LocalDateTime end) {
+
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">        if (deviceId == null || deviceId.isBlank()) {</span>
+<span class="nc" id="L51">            throw new IllegalArgumentException(&quot;deviceId must not be empty.&quot;);</span>
+        }
+
+<span class="pc bpc" id="L54" title="2 of 4 branches missed.">        if (start == null || end == null) {</span>
+<span class="nc" id="L55">            throw new IllegalArgumentException(&quot;startTime and endTime are required.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if (start.isAfter(end)) {</span>
+<span class="fc" id="L59">            throw new IllegalArgumentException(&quot;startTime must be before endTime.&quot;);</span>
+        }
+<span class="fc" id="L61">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

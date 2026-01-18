@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="tr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MetricCalculator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">sensordata-interpreter</a> &gt; <a href="index.source.html" class="el_package">io.sensordata.interpreter.calculator</a> &gt; <span class="el_source">MetricCalculator.java</span></div><h1>MetricCalculator.java</h1><pre class="source lang-java linenums">package io.sensordata.interpreter.calculator;
+
+import org.springframework.stereotype.Component;
+import java.time.Duration;
+import java.time.LocalDateTime;
+
+import io.sensordata.interpreter.model.OperationalData;
+import io.sensordata.interpreter.repository.OperationalDataRepository;
+
+
+
+@Component
+public class MetricCalculator {
+
+	private final OperationalDataRepository repository;
+
+<span class="fc" id="L17">	public MetricCalculator(OperationalDataRepository repository) {</span>
+<span class="fc" id="L18">	    this.repository = repository; // in order to read previous measurements.</span>
+<span class="fc" id="L19">	}</span>
+
+	
+    // Rule 1- BatteryCharge.
+    public boolean isBatteryChargeLow(Double batteryCharge, Double limit) {
+<span class="pc bpc" id="L24" title="2 of 4 branches missed.">        if (batteryCharge == null || limit == null) {  // false if any value is missing.</span>
+<span class="nc" id="L25">            return false;</span>
+        }
+<span class="fc bfc" id="L27" title="All 2 branches covered.">        return batteryCharge &lt; limit;</span>
+    }
+
+    public boolean isVoltageChangeHigh(String deviceId,
+            Double currentVoltage,
+            Integer windowMinutes,
+            Double thresholdPercent) {
+					// Rule 2- Compare current voltage with previous one within time window.					
+<span class="pc bpc" id="L35" title="4 of 8 branches missed.">					if (deviceId == null || currentVoltage == null || windowMinutes == null || thresholdPercent == null) {					</span>
+<span class="nc" id="L36">						return false;</span>
+					}
+					
+					// Get last saved data for this device.
+<span class="fc" id="L40">					OperationalData lastData = repository.findTopByDeviceIdOrderByRecordIdDesc(deviceId);</span>
+<span class="pc bpc" id="L41" title="1 of 6 branches missed.">					if (lastData == null || lastData.getBatteryVoltage() == null || lastData.getRecordTime() == null) {</span>
+<span class="fc" id="L42">						return false; // Cannot compute change.</span>
+					}
+					
+					// Check time difference between now and last record.
+<span class="fc" id="L46">					LocalDateTime lastTime = lastData.getRecordTime();</span>
+<span class="fc" id="L47">					LocalDateTime now = LocalDateTime.now();</span>
+					
+<span class="fc" id="L49">					long minutesDiff = Duration.between(lastTime, now).toMinutes();</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">					if (minutesDiff &gt; windowMinutes) {</span>
+<span class="fc" id="L51">						return false; // Outside time window -&gt; no alarm.</span>
+					}
+					
+<span class="fc" id="L54">					double previousVoltage = lastData.getBatteryVoltage();</span>
+					
+					// Division by zero control.
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">					if (previousVoltage == 0) {</span>
+<span class="nc" id="L58">						return false;</span>
+					}
+					
+					// Percent change = |current - previous| / previous * 100
+<span class="fc" id="L62">					double percentChange =Math.abs(currentVoltage - previousVoltage) / previousVoltage * 100.0;</span>
+										
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		return percentChange &gt; thresholdPercent;</span>
+	}
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
